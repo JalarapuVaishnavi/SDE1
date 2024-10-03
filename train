@@ -1,0 +1,63 @@
+class TrainCoach:
+    def __init__(self):
+        # Initialize the seating arrangement: 11 rows of 7 seats, and 1 row of 3 seats
+        self.seats = [
+            [0] * 7 for _ in range(11)
+        ] + [[0] * 3]  # Last row with 3 seats
+        self.total_seats = 80
+        self.booked_seats = []
+
+    def display_seats(self):
+        # Display the seating arrangement with 0 for available and 1 for booked
+        for row in self.seats:
+            print(row)
+
+    def check_availability(self, num_seats):
+        # Find if there are enough available seats in one row, if possible
+        available_seats = []
+        for row_idx, row in enumerate(self.seats):
+            row_available = [i for i, seat in enumerate(row) if seat == 0]
+            if len(row_available) >= num_seats:
+                available_seats = [(row_idx, i) for i in row_available[:num_seats]]
+                break
+        return available_seats
+
+    def book_seats(self, num_seats):
+        # Try to book the requested number of seats
+        available_seats = self.check_availability(num_seats)
+        if available_seats:
+            for row_idx, seat_idx in available_seats:
+                self.seats[row_idx][seat_idx] = 1
+                self.booked_seats.append((row_idx, seat_idx))
+            print(f"Seats booked: {[(row_idx + 1, seat_idx + 1) for row_idx, seat_idx in available_seats]}")
+        else:
+            print("Not enough seats available in one row, trying to book nearby seats.")
+            self.book_nearby_seats(num_seats)
+
+    def book_nearby_seats(self, num_seats):
+        # If seats aren't available in one row, book nearby seats
+        booked_seats = []
+        for row_idx, row in enumerate(self.seats):
+            for seat_idx, seat in enumerate(row):
+                if seat == 0:
+                    self.seats[row_idx][seat_idx] = 1
+                    booked_seats.append((row_idx, seat_idx))
+                    if len(booked_seats) == num_seats:
+                        print(f"Seats booked: {[(row_idx + 1, seat_idx + 1) for row_idx, seat_idx in booked_seats]}")
+                        return
+        print("Sorry, not enough seats are available.")
+
+# Example usage
+coach = TrainCoach()
+
+# Display the current seating status (0 - available, 1 - booked)
+print("Initial seating arrangement:")
+coach.display_seats()
+
+# Book seats based on user input
+num_seats = int(input("Enter the number of seats to book: "))
+coach.book_seats(num_seats)
+
+# Display the updated seating status after booking
+print("\nUpdated seating arrangement:")
+coach.display_seats()
